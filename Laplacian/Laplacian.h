@@ -27,7 +27,7 @@ typedef Eigen::Triplet<double> T;
 		return cos / sin;
 	}
 
-	SpMat reverseDiag(Vec& A)
+	SpMat Diag(const Vec& A)
 	{
 		int size = A.size();
 
@@ -36,7 +36,7 @@ typedef Eigen::Triplet<double> T;
 		coeff.reserve(size);
 
 		for(int i = 0; i < size; i++)
-			coeff.push_back(T(i, i, 1.0 / A(i)));
+			coeff.push_back(T(i, i, A(i)));
 
 		SpMat I(size, size);
 		I.setFromTriplets(coeff.begin(), coeff.end());
@@ -115,21 +115,29 @@ typedef Eigen::Triplet<double> T;
 		return A;
 	}
 
+	/*
+	*   Mean Curvature smooth. Since \laplace f = 2HN.
+	*   X_t - X_0 = h * L X_t  =>  (I - h * L) X_t = X_0  (this is not symmetry)
+	*   While L = A^{-1} \hat{L}, where \hat{L} is (d*d) and is symmetry
+	*   (A - h * \hat{L}) X_t = A X_0
+	*/
 	VMat smoothMesh(VMat& V, FMat& F, double h)
 	{
 		SpMat Lap = Laplacian(V, F);
 		Vec A = Area(V, F);
+
+		/* outprint info */
+		printf("Area: max: %.4e, min: %.4e, avg: %.4e\n", A.maxCoeff(), A.minCoeff(), A.mean());
+
 		/* compute  H = I - h * L */
-		SpMat H = SpMat(Lap.innerSize(), Lap.outerSize());
-		H.setIdentity();
-		//H = H - h * reverseDiag(A) * Lap;
-		H = H - h * Lap;
+		SpMat C = Diag(A);
+		SpMat H = C - h * Lap;
 		
 		/* solve H V_t = V */
 		Eigen::SimplicialLDLT<SpMat> solver;
 		solver.compute(H);
 
-		VMat new_V = solver.solve(V);
+		VMat new_V = solver.solve(C*V);
 
 		return new_V;
 	}

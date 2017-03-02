@@ -16,15 +16,15 @@
 Eigen::MatrixXd V_ori;
 Eigen::MatrixXd V;
 Eigen::MatrixXi F;
-
+double STEP = 0.01;
 
 bool key_down(igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 {
-	printf("press key: %c\n", key);
+	printf("press key: %c, id: %d\n", key, key);
 
 	if (key == ' ')
 	{
-		V = DGP::smoothMesh(V, F, 0.1);
+		V = DGP::smoothMesh(V, F, STEP);
 		viewer.data.clear();
 		viewer.data.set_mesh(V, F);
 		//viewer.core.align_camera_center(V, F);
