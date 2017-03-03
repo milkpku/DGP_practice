@@ -11,7 +11,7 @@
 #include <igl/readOBJ.h>
 #include <igl/viewer/Viewer.h>
 
-#include "Laplacian.h"
+#include "../include/Laplacian.h"
 
 Eigen::MatrixXd V_ori;
 Eigen::MatrixXd V;

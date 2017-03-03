@@ -9,15 +9,11 @@
 
 #include <glm/glm.hpp>
 
+#include "Types.h"
+
 namespace DGP{
 
-typedef Eigen::MatrixXd VMat;
-typedef Eigen::MatrixXi FMat;
-typedef Eigen::VectorXd Vec;
-typedef Eigen::SparseMatrix<double> SpMat;
-typedef Eigen::Triplet<double> T;
-
-#define VPos(x) glm::dvec3(V(x, 0), V(x, 1), V(x, 2))
+    #define VPos(x) glm::dvec3(V(x, 0), V(x, 1), V(x, 2))
 
 	/* compute cot angle between vector a, b,  cot = <a, b> / |a x b| */
 	double cot(glm::dvec3 a, glm::dvec3 b)
@@ -54,7 +50,7 @@ typedef Eigen::Triplet<double> T;
 	* Return:
 	*	L: sparse matrix of Laplacian-Beltra, V * V sparse double
 	*/
-	SpMat Laplacian(VMat &V, FMat &F)
+	SpMat Laplacian(const VMat &V, const FMat &F)
 	{
 		/* size of the mesh */
 		int f_num = F.innerSize();

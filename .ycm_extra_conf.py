@@ -47,6 +47,7 @@ flags = [
 '-I~/usr/include/',
 '-I./include/',
 '-IC:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/include/',
+'-IC:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/ucrt',
 '-IC:/VC_env/include',
 # You 100% do NOT need -DUSE_CLANG_COMPLETER in your flags; only the YCM
 # source code needs it.
