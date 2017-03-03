@@ -1,7 +1,7 @@
 #pragma once
 
 #define _USE_MATH_DEFINES
-#include <cmath>
+#include <math.h>
 
 #include <igl/sortrows.h>
 #include <Eigen/Dense>
@@ -75,10 +75,43 @@ namespace DGP
         return bound;
     }
 
+	/* build Area matrix of a disk like 2d manifold 
+	 *
+	 *  Args:
+	 *	    V: matrix of vertices positions, V * 3 double
+	 *      F: matrix of triangle faces,     F * 3 int
+     *
+     *  Returns:
+     *
+     *      A: matrix of area computing, V * V double
+     *         usage:  area = -i/4 * (z^*T A z )
+	 */
+	SpMat buildAreaMatrix(const VMat& V, const FMat& F)
+	{
+		int v_num = V.innerSize();
+
+		BMat B = boundary(F);
+		int b_num = B.innerSize();
+
+		/* build Area matrix */
+		std::vector<T> area_coeff;
+		area_coeff.clear();
+		area_coeff.reserve(b_num * 2);
+
+		for (int i = 0; i < b_num; i++)
+		{
+			area_coeff.push_back(T(B(i, 0), B(i, 1), 1));
+			area_coeff.push_back(T(B(i, 1), B(i, 0), -1));
+		}
+
+		SpMat A(v_num, v_num);
+		A.setFromTriplets(area_coeff.begin(), area_coeff.end());
+		return A;
+	}
 
     /* build comfromal transform energy from disk topology manifold to complex plane
      *  E_C = E_D - A
-     *  E_D = <\laplace z, z> =>  E_D = (Z^*T) d*d Z 
+     *  E_D = 1/2 <\laplace z, z> =>  E_D = (Z^*T) d*d Z 
      *  A = -i/2 * \int d\bar{z} \up dz = - i/4 \sum_{ij}(\bar{z}_i z_j - \bar{z}_j z_i)
      *
 	 *  Args:
@@ -90,27 +123,7 @@ namespace DGP
      */
     SpMatC buildParameterizationEnergy(const VMat& V, const FMat& F)
     {
-        int v_num = V.innerSize();
-    
-        BMat B = boundary(F);
-        int b_num = B.innerSize();
-
-        /* build Area matrix */
-        std::vector<T> area_coeff;
-        area_coeff.clear();
-        area_coeff.reserve(b_num * 2);
-
-        for(int i = 0; i < b_num; i++)
-        {
-            area_coeff.push_back(T(B(i, 0), B(i, 1), 1));
-            area_coeff.push_back(T(B(i, 1), B(i, 0), -1));
-        }
-
-        SpMat A(v_num, v_num);
-        A.setFromTriplets(area_coeff.begin(), area_coeff.end());
-
-		SpMatC E = (Laplacian(V, F)).cast<complex>() + complex(0, 0.25) * A.cast<complex>();
-
+		SpMatC E = (Laplacian(V, F)).cast<complex>() + complex(0, 0.5) * buildAreaMatrix(V, F).cast<complex>();
         return E;
     }
 
@@ -118,7 +131,6 @@ namespace DGP
 	double residual(const SpMatC& A, const cVec& y)
 	{
 		cVec r = A*y - (y.dot(A * y)) * y;
-
 		return r.norm();
 	}
 
