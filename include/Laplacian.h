@@ -71,6 +71,7 @@ namespace DGP{
 				double cot_ij;
 				/* compute cot of ij */
 				cot_ij = cot(v_pos[j] - v_pos[(j + 2) % 3], v_pos[(j + 1) % 3] - v_pos[(j + 2) % 3]);
+				cot_ij /= 2;
 				lap_coeff.push_back(T(v_id[j],			 v_id[(j + 1) % 3],  cot_ij));
 				lap_coeff.push_back(T(v_id[(j + 1) % 3], v_id[j],			 cot_ij));
 				lap_coeff.push_back(T(v_id[j],			 v_id[j],		    -cot_ij));
