@@ -19,6 +19,7 @@ DGP::VMat V;
 DGP::FMat F;
 DGP::TMat T;
 DGP::TMat V_uv;
+DGP::TMat T_uv;
 
 bool key_down(igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 {
@@ -33,6 +34,12 @@ bool key_down(igl::viewer::Viewer& viewer, unsigned char key, int modifier)
 	{
 		viewer.data.set_uv(T);
 	}
+
+	if (key == '3')
+	{
+		viewer.data.set_uv(T_uv);
+	}
+
 
 	return 0;
 }
@@ -59,9 +66,14 @@ int main(int argc, char* argv[])
 	b(1) = bnd(bnd.size() / 2);
 	DGP::VMat bc(2, 2);
 	bc << 0, 0, 1, 0;
+	printf("fix ids: %d, %d\n", b(0), b(1));
 
 	igl::lscm(V, F, b, bc, V_uv);
 	V_uv *= 5;
+
+	/* myself program 2 */
+	T_uv = DGP::leastSquareConformalParameterization(V, F, b, bc);
+	T_uv *= 5;
 
 
     igl::viewer::Viewer viewer;

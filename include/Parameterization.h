@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include <igl/sortrows.h>
+#include <igl/slice.h>
 #include <Eigen/Dense>
 
 #include <glm/glm.hpp>
@@ -202,5 +203,58 @@ namespace DGP
 
         return T;
     }
+
+	TMat leastSquareConformalParameterization(const VMat& V, const FMat& F, const iVec& b, const TMat& bc)
+	{
+		int v_num = V.innerSize();
+		int p_num = b.size();
+		int f_num = v_num - p_num;
+
+		/* get conformal transform energy */
+		SpMatC E = buildParameterizationEnergy(V, F);
+		
+		/* get permutation matrix to make all fixed vertices labeled last */
+		SpMatC P(v_num, v_num);
+		P.setIdentity();
+		
+		iVec b_I, b_sort;
+		igl::sortrows(b, true, b_sort, b_I);
+
+		cVec bc_complex = bc.col(0).cast<complex>() + complex(0, 1) * bc.col(1).cast<complex>();
+		cVec bc_sort;
+
+		igl::slice(bc_complex, b_I, bc_sort);
+
+		for (int i = 0; i < p_num; i++)
+		{
+			int src = b_sort(p_num - i - 1);
+			int targ = v_num - i - 1;
+			SpVecC tmp = P.col(targ);
+			P.col(targ) = P.col(src);
+			P.col(src) = tmp;
+		}
+
+		/* get least square equation */
+		SpMatC A = P.transpose() * E * P;
+		cVec y = A.rightCols(p_num) * bc_sort;
+		y = y.topRows(f_num);
+		A = A.topLeftCorner(f_num, f_num);
+
+		Eigen::SimplicialLDLT<SpMatC> solver;
+		solver.compute(A);
+
+		cVec x_tmp = solver.solve(y);
+
+		cVec x(v_num);
+		x << x_tmp, bc_sort;
+
+		x = P * x;
+
+		TMat texture(v_num, 2);
+		texture.col(0) = x.real();
+		texture.col(1) = x.imag();
+
+		return texture;
+	}
 
 }

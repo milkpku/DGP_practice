@@ -24,4 +24,5 @@ namespace DGP
 
     typedef std::complex<double> complex;       /* double complex */
     typedef Eigen::SparseMatrix<complex> SpMatC;/* double complex SpMat */
+	typedef Eigen::SparseVector<complex> SpVecC;/* double complex SpVec */
 }
