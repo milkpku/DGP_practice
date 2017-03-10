@@ -12,7 +12,7 @@
 #include <igl/jet.h>
 
 #include "../include/Types.h"
-#include "../include/HodgeDecomposition.h"
+#include "../include/ExteriorCalculus.h"
 
 Eigen::MatrixXd V;
 Eigen::MatrixXi F;
