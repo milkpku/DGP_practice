@@ -1,6 +1,19 @@
-#pragma once
+
+
+#ifndef IGL_DISCRETE_EXTERIOR_CALCULUS_H
+#define IGL_DISCRETE_EXTERIOR_CALCULUS_H
+
+
+#include "Types.h"
+
+#define IGL_INLINE inline
+
+
+namespace DGP
+{
+
 /*
- * Discrete Differential Operators based on Halfedge concept
+ * Discrete Exterior Calculus Operators based on Halfedge concept
  *
  *         V  --- d0 -->  E  -- d1 -->  F
  *         |              |             | 
@@ -44,12 +57,8 @@
  *       
  */
 
-#include "Types.h"
 
-#define IGL_INLINE inline
 
-namespace DGP
-{
     IGL_INLINE FMat dualHalfEdge(const FMat& F); 
 
     IGL_INLINE SpMat HodgeStar0Form(const VMat& V, const FMat& F);          /* *0 */
@@ -72,9 +81,11 @@ namespace DGP
     {
         return 0.5 * ExteriorDerivative1Form(V, F).transpose();
     }
-
 }
 
 #ifndef IGL_STATIC_LIBRARY
-#include "HodgeDecomposition.cpp"
+#include "ExteriorCalculus.cpp"
+#endif
+
+
 #endif

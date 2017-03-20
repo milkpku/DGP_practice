@@ -4,8 +4,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <libspec/GLFWLib.h>
+
+#include <libspec/NanoGUILib.h>
 
 #include <igl/readOBJ.h>
 #include <igl/viewer/Viewer.h>
